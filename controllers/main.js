@@ -1,6 +1,7 @@
 const {spawn} = require('child_process');
 const { once } = require('events');
 const base64 = require('./base64');
+const history = require('./../models/historyModal')
 
 //Function to Run decodify Script using NodeJS built-In Module Child-process (https://nodejs.org/api/child_process.html)
 const decodify = async (data) => {
@@ -27,6 +28,28 @@ const forhex = (data) => {
     return data.replace(/ /g, "")
 }
 
+// Registering User History
+const registerHistory = async (ddata, data, status, userID = 'anonymous') => {
+    try{
+        if(userID == 'anonymous'){
+            newHistory = await history.create({
+                stringtoDecode: data,
+                decoded_Text: ddata,
+                outcome: status
+            });
+        }else{
+            newHistory = await history.create({
+                stringtoDecode: data,
+                decoded_Text: ddata,
+                user: userID,
+                outcome: status
+            });
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
+
 exports.main = async (req,res) => {
     let data  = req.body.data
     let decoded, status = "Failed"
@@ -41,30 +64,59 @@ exports.main = async (req,res) => {
         res.status(200).json({
             "Status": status,
             decoded_data,
-            data
+            data,
         })
+        
     }else{
         status = "Data field Cannot be Empty!"
         res.status(400).json({
             "Status": status,
         })
     }
-
-
-    
 }
 
-// In progress for particularly Ciphers
-exports.magic = async (req,res) => {
-    const method  = req.body.method;
-    const data = req.body.data;
-    // BASE64
-    let decoded_data;
-    if(method == "base64"){
-        decoded_data = base64.decodeB64(data);
+exports.newmain = async (req,res) => {
+    let toStore = req.body.toStore
+    let data  = req.body.data
+    let method = req.body.method
+
+    let decoded,decoded_data, status = true
+    if(data){
+        if(method == "base64"){
+            decoded_data = base64.decodeB64(data);
+            if(!decoded_data.length){
+                status = false
+            }
+        }
+        else if(method == "recursive"){
+            data = forhex(data)
+            decoded_data = await decodify(data)
+            decoded_data = cleanData(decoded_data)
+            if(!decoded_data.startsWith('404') && decoded_data.length){
+                decoded_data = trimData(decoded_data)
+                status = true
+            }else{
+                status = false
+            }
+        }
+       
+        if(toStore){
+            if(!req.user){
+                await registerHistory(decoded_data, data, status)
+            }else{
+                await registerHistory(decoded_data, data,status, req.user.id)
+            }
+        }
+        res.status(200).json({
+            "Status": status,
+            decoded_data,
+            data,
+        })
+        
+    }else{
+        status = "Data field Cannot be Empty!"
+        res.status(400).json({
+            "Status": status,
+        })
     }
-    res.status(200).json({
-        "Status": "successful",
-        decoded_data
-    })
 }
