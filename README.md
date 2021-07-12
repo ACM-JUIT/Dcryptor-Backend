@@ -9,3 +9,7 @@ Dcryptor is an android app using OCR tech to recognise text, more precisely, cry
 Server should be having these points:
  * Strong security
  * Uses a tool called Dcryptor for linux distros 
+
+### Heroku API Call
+
+https://acm-dcryptor.herokuapp.com/api/v1/
