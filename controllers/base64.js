@@ -1,7 +1,7 @@
 const {Base64} = require('js-base64');
 
 function isASCII(str) {
-    return /^[\x00-\x7F]*$/.test(str);
+    return /^\w+$/i.test(str);
 }
 
 exports.decodeB64 = (data) => {

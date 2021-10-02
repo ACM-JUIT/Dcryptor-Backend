@@ -29,7 +29,7 @@ const fourfour = (req,res,next) => {
 
 
 const bad_data = (req,res,next) => {
-    bad  = [';', ':', '!', "*"]
+    bad  = [';', ':', '!', "*","\"","\'"]
     data = req.body.data;
     let flag = 0;
     for (x in data){

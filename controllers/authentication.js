@@ -50,7 +50,7 @@ exports.login = async (req, res, next) => {
             "Error" : "Please Specify Email and Password!"
         })
     }
-    //check if user exiest and password is correct
+    //check if user exist and password is correct
     let user;
     try{
         user = await User.findOne({ email }).select('+password');
