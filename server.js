@@ -1,6 +1,7 @@
 const app = require('./index')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
+const displayRoutes  = require('./displayRoutes')
 dotenv.config({path: './config.env'})
 
 //mongo-DB
@@ -19,6 +20,7 @@ mongoose.connect(DB, {
 const PORT = process.env.PORT || 3000
 
 const server = app.listen(PORT, ()=>{
+    displayRoutes(app);
     console.log(`Server Started on PORT ${PORT}`)
 })
 
